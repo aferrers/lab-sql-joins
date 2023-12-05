@@ -102,23 +102,41 @@ ORDER BY
 LIMIT
 	10;
 
--- WIP after this. --------
 -- Determine if "Academy Dinosaur" can be rented from Store 1.
 select * from film;
--- WIP
-SELECT
-	f.title 
+
+SELECT 
+    distinct(film_id),
+    CASE 
+		WHEN store_id=1 and film_id=(SELECT distinct(film_id) FROM film WHERE title='ACADEMY DINOSAUR')
+			THEN 'available in store 1'
+		ELSE 'not available'
+    END AS Availabiity_Message
 FROM 
-	film f 
-INNER JOIN 
-	inventory i ON f.film_id = i.film_id
-WHERE f.title='ACADEMY DINOSAUR'
-;
+	inventory
+WHERE 
+	film_id IN (SELECT distinct(film_id) FROM film WHERE title='ACADEMY DINOSAUR')
+    AND
+    store_id=1;
+
 
 -- Provide a list of all distinct film titles, along with their availability status in the inventory. 
 -- Include a column indicating whether each title is 'Available' or 'NOT available.' 
--- Note that there are 42 titles that are not in the inventory, and this information can be obtained using a CASE statement combined with IFNULL."
+-- Note that there are 42 titles that are not in the inventory, 
+-- and this information can be obtained using a CASE statement combined with IFNULL."
 
-
-
+SELECT
+	distinct(f.title),
+    CASE
+    WHEN COUNT(i.inventory_id) > 0 THEN 'available'
+    ELSE 'not available'
+    END AS Availibility
+FROM
+	film f
+LEFT JOIN 
+	inventory i ON f.film_id = i.film_id
+GROUP BY f.title
+ORDER BY COUNT(i.inventory_id) Desc;
+-- HAVING COUNT(i.inventory_id) =0;
+	
 
